@@ -15,6 +15,7 @@ from pythia_medusa.models import MedusaModel
 from pythia_medusa.training.collator import MedusaTrainingCollator
 from pythia_medusa.training.dataset import TextDataset, TokenizedTextDataset, load_training_dataset
 from pythia_medusa.training.losses import MedusaLossOutput, compute_medusa_loss
+from pythia_medusa.training.visualize_training import write_training_dashboard
 from pythia_medusa.utils.io import append_csv_row, write_json
 
 try:
@@ -50,6 +51,7 @@ class TrainingConfig:
     save_tokenizer: bool = False
     show_progress: bool = True
     pretokenize_dataset: bool = True
+    write_dashboard: bool = True
 
 
 def freeze_base_model_parameters(model: MedusaModel) -> None:
@@ -255,6 +257,7 @@ class MedusaTrainer:
         max_steps: int | None = None,
     ) -> dict[str, Any]:
         history: list[dict[str, Any]] = []
+        eval_history: list[dict[str, Any]] = []
         global_step = 0
         stop_training = False
         self.optimizer.zero_grad()
@@ -301,6 +304,14 @@ class MedusaTrainer:
                 if self.valid_dataloader
                 else {}
             )
+            if eval_metrics:
+                eval_row = {
+                    "epoch": epoch,
+                    "step": global_step,
+                    **eval_metrics,
+                }
+                eval_history.append(eval_row)
+                append_csv_row(eval_row, self.output_dir / "valid_log.csv")
             checkpoint_metrics = {
                 "train": history[-1] if history else {},
                 "valid": eval_metrics,
@@ -311,6 +322,7 @@ class MedusaTrainer:
 
         summary = {
             "history": history,
+            "eval_history": eval_history,
             "final_train_metrics": history[-1] if history else {},
             "final_valid_metrics": (
                 self._run_eval(self.valid_dataloader, desc="Final validation")
@@ -379,6 +391,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--save-tokenizer", action="store_true")
     parser.add_argument("--no-progress", action="store_true")
     parser.add_argument("--no-pretokenize-dataset", action="store_true")
+    parser.add_argument("--no-dashboard", action="store_true")
     return parser.parse_args()
 
 
@@ -407,6 +420,7 @@ def main() -> None:
             "save_tokenizer": args.save_tokenizer or None,
             "show_progress": False if args.no_progress else None,
             "pretokenize_dataset": False if args.no_pretokenize_dataset else None,
+            "write_dashboard": False if args.no_dashboard else None,
         },
     )
     if not config.dataset:
@@ -493,6 +507,11 @@ def main() -> None:
         "summary": summary,
     }
     write_json(payload, Path(config.output_dir) / "run_summary.json")
+    if config.write_dashboard:
+        write_training_dashboard(
+            payload,
+            output_path=Path(config.output_dir) / "training_dashboard.html",
+        )
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 

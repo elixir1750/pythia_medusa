@@ -157,6 +157,7 @@ def test_trainer_runs_with_progress_disabled(tmp_path):
 
     assert "final_train_metrics" in summary
     assert "final_valid_metrics" in summary
+    assert "eval_history" in summary
     assert summary["final_train_metrics"]["loss"] >= 0.0
 
 
@@ -178,6 +179,40 @@ def test_trainer_stops_at_max_steps(tmp_path):
 
     assert len(summary["history"]) == 2
     assert summary["max_steps_reached"] is True
+
+
+def test_visual_dashboard_is_written_from_run_summary(tmp_path):
+    model, dataloader, _ = build_model_and_batch()
+    freeze_base_model_parameters(model)
+    optimizer = AdamW([parameter for parameter in model.parameters() if parameter.requires_grad], lr=1e-3)
+    trainer = MedusaTrainer(
+        model,
+        optimizer=optimizer,
+        train_dataloader=dataloader,
+        valid_dataloader=dataloader,
+        device="cpu",
+        output_dir=str(tmp_path),
+        show_progress=False,
+    )
+
+    summary = trainer.train(num_epochs=1, log_every=1)
+    payload = {
+        "config": {"model": "dummy-base", "write_dashboard": True},
+        "parameter_stats": count_parameters(model),
+        "summary": summary,
+    }
+
+    from pythia_medusa.training.visualize_training import write_training_dashboard
+
+    dashboard_path = write_training_dashboard(
+        payload,
+        output_path=tmp_path / "training_dashboard.html",
+    )
+
+    assert dashboard_path.exists()
+    content = dashboard_path.read_text(encoding="utf-8")
+    assert "Pythia Medusa Training Dashboard" in content
+    assert "Head Accuracy" in content
 
 
 def test_compute_medusa_loss_avoids_nan_from_overflowing_logits_sum():

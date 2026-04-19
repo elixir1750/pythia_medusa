@@ -611,12 +611,39 @@ checkpoint 目录会包含：
 
 如果启用 `save_tokenizer`，还会把 tokenizer 一起写入 checkpoint 目录。
 
+默认训练结束后，输出目录里还会额外生成：
+
+- `training_dashboard.html`
+- `valid_log.csv`
+
 ### 训练中记录的指标
 
 - 总 loss
 - 每个 head 的 loss
 - 每个 head 的 accuracy
 - 每个 head 的 valid token 数
+
+### 训练可视化
+
+trainer 现在会默认生成一个离线可打开的 HTML dashboard，适合像看 TensorBoard 一样快速看曲线：
+
+- 总 loss 曲线
+- `head1/head2/head3` 的 loss 曲线
+- `head1/head2/head3` 的 accuracy 曲线
+- 每轮 validation 快照
+
+如果你想对已有结果重新生成一份 dashboard，也可以单独运行：
+
+```bash
+python -m pythia_medusa.training.visualize_training \
+  --run-dir outputs/medusa_train_small
+```
+
+如果你不想自动生成 dashboard，可以在训练命令里显式加：
+
+```bash
+--no-dashboard
+```
 
 ## Phase 5：评估与对比
 

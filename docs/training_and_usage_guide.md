@@ -308,6 +308,8 @@ python -m pythia_medusa.training.trainer \
 - `outputs/medusa_train_small/training_summary.json`
 - `outputs/medusa_train_small/run_summary.json`
 - `outputs/medusa_train_small/train_log.csv`
+- `outputs/medusa_train_small/valid_log.csv`
+- `outputs/medusa_train_small/training_dashboard.html`
 - `outputs/medusa_train_small/checkpoint-epoch01-step000xx/`
 
 checkpoint 目录里通常包含：
@@ -318,6 +320,28 @@ checkpoint 目录里通常包含：
 - `optimizer.pt`
 
 如果启用了 tokenizer 保存，还会包含 tokenizer 文件。
+
+### 6.8 训练过程可视化
+
+现在 trainer 默认会在训练结束后生成一个本地 HTML dashboard，适合快速看：
+
+- 总 loss 的变化
+- 三个 head 的 loss 变化
+- 三个 head 的 accuracy 变化
+- validation 快照
+
+如果你想对已有的训练结果重新生成 dashboard，可以单独运行：
+
+```bash
+python -m pythia_medusa.training.visualize_training \
+  --run-dir outputs/medusa_train_small
+```
+
+如果你不想自动生成 dashboard，可以在训练命令里加：
+
+```bash
+--no-dashboard
+```
 
 ## 7. 使用训练后的 checkpoint
 
