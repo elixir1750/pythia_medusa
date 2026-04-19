@@ -1,0 +1,9 @@
+model: EleutherAI/pythia-70m-deduped
+checkpoint_path: outputs/medusa_train_small/checkpoint-epoch01-step00001
+dataset: data/valid.jsonl
+text_field: text
+max_examples: 64
+max_length: 128
+max_new_tokens: 32
+output_dir: outputs/eval_compare
+prompt_set: all

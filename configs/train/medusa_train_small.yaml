@@ -1,0 +1,15 @@
+model: EleutherAI/pythia-70m-deduped
+dataset: data/train.jsonl
+valid_dataset: data/valid.jsonl
+output_dir: outputs/medusa_train_small
+text_field: text
+seq_len: 128
+batch_size: 8
+grad_accum: 1
+lr: 0.001
+num_epochs: 1
+max_examples: 128
+medusa_num_heads: 3
+medusa_num_layers: 1
+log_every: 10
+save_tokenizer: false

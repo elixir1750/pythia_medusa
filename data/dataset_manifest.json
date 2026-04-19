@@ -1,0 +1,24 @@
+{
+  "preset": "wikitext-2",
+  "preset_config": {
+    "hf_path": "wikitext",
+    "hf_name": "wikitext-2-raw-v1",
+    "train_split": "train",
+    "valid_split": "validation",
+    "text_field": "text",
+    "description": "Small natural-text baseline close to language modeling homework scale."
+  },
+  "chunker": "tokenizer",
+  "tokenizer_name": "EleutherAI/pythia-70m-deduped",
+  "chunk_size": 128,
+  "chunk_overlap": 0,
+  "merge_min_chars": 800,
+  "min_chunk_tokens": 32,
+  "min_chunk_chars": null,
+  "train_output": "data/train.jsonl",
+  "valid_output": "data/valid.jsonl",
+  "num_train_records": 1230,
+  "num_valid_records": 223,
+  "max_train_records": 2000,
+  "max_valid_records": 400
+}

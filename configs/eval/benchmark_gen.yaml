@@ -1,0 +1,7 @@
+model: EleutherAI/pythia-70m-deduped
+checkpoint_path: outputs/medusa_train_small/checkpoint-epoch01-step00001
+output_dir: outputs/benchmark_compare
+prompt_set: all
+max_new_tokens: 32
+repeat: 5
+warmup: 1
